@@ -1,4 +1,4 @@
-package gosnipe
+package main
 
 import (
 	"bufio"
