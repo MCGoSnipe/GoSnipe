@@ -51,6 +51,26 @@ func initFlags() {
 
 }
 
+func timeSnipe(timestampTemp *time.Time, lines []string) {
+	timestamp := *timestampTemp
+	ch := make(chan gosnipe.SnipeRes)
+	time.Sleep(time.Until(timestamp.Add(time.Second * time.Duration(20))))
+	bearers, labels, _ := gosnipe.SliceStrToBearers(lines)
+	for i, bearer := range bearers {
+		config := gosnipe.Configuration{
+			Bearer:    bearer,
+			Name:      name,
+			Offset:    offset + float64(speedlimit*i),
+			Timestamp: timestamp,
+			Label:     &labels[i],
+		}
+		for j := 0; j < snipereqs; j++ {
+			go gosnipe.Snipe(config, ch)
+			go getResp(ch)
+		}
+	}
+}
+
 func getResp(ch chan gosnipe.SnipeRes) {
 	snipeRes := <-ch
 	if snipeRes.Status != nil {
@@ -89,9 +109,9 @@ func main() {
 	}
 	bearers := make([]string, 0)
 	labels := make([]string, 0)
+	var lines []string
 	if isFlagPassed("path") {
-		lines, _ := gosnipe.TextToSliceStr(path)
-		bearers, labels, _ = gosnipe.SliceStrToBearers(lines)
+		lines, _ = gosnipe.TextToSliceStr(path)
 	}
 	if isFlagPassed("microsoft") {
 		if msa {
@@ -120,27 +140,12 @@ func main() {
 			}
 		}
 	}
-	var timestamp time.Time
 	timestampTemp := gosnipe.GetDropTime(name)
 	if timestampTemp == nil {
 		fmt.Println("Failed to fetch droptime.")
 		os.Exit(1)
 	}
-	timestamp = *timestampTemp
-	ch := make(chan gosnipe.SnipeRes)
-	for i, bearer := range bearers {
-		config := gosnipe.Configuration{
-			Bearer:    bearer,
-			Name:      name,
-			Offset:    offset + float64(speedlimit*i),
-			Timestamp: timestamp,
-			Label:     &labels[i],
-		}
-		for j := 0; j < snipereqs; j++ {
-			go gosnipe.Snipe(config, ch)
-			go getResp(ch)
-		}
-	}
+	go timeSnipe(timestampTemp, lines)
 	fmt.Println("Snipe running. Press enter to stop.")
 	read.ReadString('\n')
 }
