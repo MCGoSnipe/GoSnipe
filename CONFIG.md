@@ -1,5 +1,13 @@
 # Configuration
 
+## Installing
+
+Clone repo and
+`go install gosnipe.go`
+
+## Running after install
+`gosnipe`
+
 ## CLI Flags
 
 ```
