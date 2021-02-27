@@ -136,6 +136,6 @@ func main() {
 		}
 		go gosnipe.Snipe(config, ch)
 	}
+	fmt.Println("Snipe running. Press enter to stop.")
 	read.ReadString('\n')
-	time.Sleep(time.Until(timestamp.Add(time.Millisecond * time.Duration(offset+float64(speedlimit*(len(bearers)+1))))))
 }
