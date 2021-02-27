@@ -135,6 +135,7 @@ func main() {
 			Label:     &labels[i],
 		}
 		go gosnipe.Snipe(config, ch)
+		go getResp(ch)
 	}
 	fmt.Println("Snipe running. Press enter to stop.")
 	read.ReadString('\n')
