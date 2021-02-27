@@ -20,6 +20,7 @@ var (
 	name       string
 	path       string
 	bearer     string
+	snipereqs  int
 )
 
 type msaRes struct {
@@ -42,6 +43,7 @@ func initFlags() {
 	flag.Float64VarP(&offset, "offset", "o", 0, "offset in milliseconds before snipe.")
 	flag.IntVarP(&speedlimit, "auto-offset", "a", 3, "automatically set offset with X requests.")
 	flag.IntVarP(&speedlimit, "speed-limit", "l", 0, "offset between requests.")
+	flag.IntVarP(&snipereqs, "requests", "r", 2, "number of requests.")
 	flag.BoolVarP(&msa, "microsoft", "m", false, "load a microsoft account.")
 	flag.StringVarP(&bearer, "bearer", "b", "", "load a microsoft account with this response. requires -m")
 	flag.StringVarP(&name, "name", "n", "", "name to snipe.")
@@ -134,8 +136,10 @@ func main() {
 			Timestamp: timestamp,
 			Label:     &labels[i],
 		}
-		go gosnipe.Snipe(config, ch)
-		go getResp(ch)
+		for j := 0; j < snipereqs; j++ {
+			go gosnipe.Snipe(config, ch)
+			go getResp(ch)
+		}
 	}
 	fmt.Println("Snipe running. Press enter to stop.")
 	read.ReadString('\n')

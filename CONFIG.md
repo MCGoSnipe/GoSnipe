@@ -44,4 +44,8 @@ Optional:
 		Automatically sets the offset using X requests.
 		Value: int
 		Default: 3 (if flag is passed without value)
+	-r, --requests:
+		Sends this many requests.
+		Value: int
+		Default: 2
 ```
