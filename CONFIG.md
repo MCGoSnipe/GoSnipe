@@ -2,8 +2,11 @@
 
 ## Installing
 
-Clone repo and
-`go install gosnipe.go`
+Clone repo and run these commands
+```
+go get github.com/MCGoSnipe/Runtime github.com/spf13/pflag
+go install gosnipe.go
+```
 
 ## Running after install
 `gosnipe`
