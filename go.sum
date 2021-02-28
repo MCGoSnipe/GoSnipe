@@ -1,0 +1,4 @@
+github.com/MCGoSnipe/Runtime v0.0.0-20210228012004-90e7ffae22b9 h1:fJHaA79tyewg7uA32bvAOWbgj0X3wNbX3UAlPbp422Y=
+github.com/MCGoSnipe/Runtime v0.0.0-20210228012004-90e7ffae22b9/go.mod h1:Mq3VeZlR2unT9tHLDkXSUIblTbGzTs7WmV0Mv0Tyq1Q=
+github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
+github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
