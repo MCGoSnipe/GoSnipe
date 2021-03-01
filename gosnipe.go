@@ -63,7 +63,7 @@ func timeSnipe(ch chan gosnipe.SnipeRes, timestamp time.Time, lines []string) {
 			config := gosnipe.Configuration{
 				Bearer:    bearer2,
 				Name:      name,
-				Offset:    offset + float64(speedlimit*i*snipereqs+j),
+				Offset:    offset + float64(speedlimit*i*snipereqs+speedlimit*j),
 				Timestamp: timestamp,
 				Label:     &labels[i],
 			}
@@ -77,7 +77,7 @@ func getResp(ch chan gosnipe.SnipeRes) {
 	for true {
 		snipeRes := <-ch
 		if snipeRes.Status != nil {
-			fmt.Println(*snipeRes.Label + "Status: " + strconv.Itoa(*snipeRes.Status) + " Sent:" + snipeRes.Sent.Format(time.RFC3339) + " Recv: " + snipeRes.Recv.Format(time.RFC3339))
+			fmt.Println(*snipeRes.Label + "Status: " + strconv.Itoa(*snipeRes.Status) + " Sent:" + snipeRes.Sent.Format("2006/01/02 15:04:05.0000000") + " Recv: " + snipeRes.Recv.Format("2006/01/02 15:04:05.0000000"))
 		} else {
 			fmt.Println("Status was nil.")
 		}
@@ -138,25 +138,30 @@ func main() {
 				}
 				var resp msaRes
 				json.Unmarshal([]byte(res), &resp)
-				config := gosnipe.Configuration{
-					Bearer:    bearer,
-					Name:      name,
-					Offset:    offset + float64(speedlimit*0),
-					Timestamp: timestamp,
-					Label:     &label,
+				for j := 0; j < snipereqs; j++ {
+
+					config := gosnipe.Configuration{
+						Bearer:    bearer,
+						Name:      name,
+						Offset:    offset + float64(speedlimit*j),
+						Timestamp: timestamp,
+						Label:     &label,
+					}
+					go gosnipe.Snipe(config, ch)
 				}
-				go gosnipe.Snipe(config, ch)
 			} else {
 				var resp msaRes
 				json.Unmarshal([]byte(bearer), &resp)
-				config := gosnipe.Configuration{
-					Bearer:    bearer,
-					Name:      name,
-					Offset:    offset + float64(speedlimit*0),
-					Timestamp: timestamp,
-					Label:     &label,
+				for j := 0; j < snipereqs; j++ {
+					config := gosnipe.Configuration{
+						Bearer:    bearer,
+						Name:      name,
+						Offset:    offset + float64(speedlimit*j),
+						Timestamp: timestamp,
+						Label:     &label,
+					}
+					go gosnipe.Snipe(config, ch)
 				}
-				go gosnipe.Snipe(config, ch)
 			}
 		} else {
 			if !isFlagPassed("path") {
