@@ -39,7 +39,7 @@ Optional:
 		Value: int
 		Default: 0
 	-o, --offset:
-		Sets the offset (in milliseconds) to value specified, or if true, auto-sets offset.
+		Sets the offset (in milliseconds) to value specified.
 		Value: float
 		Default: 0
 	-a, --auto-offset
