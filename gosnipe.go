@@ -52,7 +52,7 @@ func initFlags() {
 }
 
 func timeSnipe(ch chan gosnipe.SnipeRes, timestamp time.Time, lines []string) {
-	time.Sleep(time.Until(timestamp.Add(time.Second * time.Duration(-20))))
+	time.Sleep(time.Until(timestamp.Add(time.Second * -20)))
 	bearers, labels, _ := gosnipe.SliceStrToBearers(lines)
 	i := 0
 	if isFlagPassed("microsoft") {
