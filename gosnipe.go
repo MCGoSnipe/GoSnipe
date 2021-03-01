@@ -77,7 +77,7 @@ func getResp(ch chan gosnipe.SnipeRes) {
 	for true {
 		snipeRes := <-ch
 		if snipeRes.Status != nil {
-			fmt.Println(*snipeRes.Label + "Status: " + strconv.Itoa(*snipeRes.Status) + " Sent:" + snipeRes.Sent.Format("2006/01/02 15:04:05.0000000") + " Recv: " + snipeRes.Recv.Format("2006/01/02 15:04:05.0000000"))
+			fmt.Println(*snipeRes.Label + " Status: " + strconv.Itoa(*snipeRes.Status) + " Sent:" + snipeRes.Sent.Format("2006/01/02 15:04:05.0000000") + " Recv: " + snipeRes.Recv.Format("2006/01/02 15:04:05.0000000"))
 		} else {
 			fmt.Println("Status was nil.")
 		}
