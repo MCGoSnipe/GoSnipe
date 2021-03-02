@@ -3,6 +3,6 @@ module github.com/MCGoSnipe/Frontend
 go 1.16
 
 require (
-	github.com/MCGoSnipe/Runtime v0.0.0-20210301052536-2e361b5b6c0e
+	github.com/MCGoSnipe/Runtime v0.0.0-20210302001942-d713a20aa8f9
 	github.com/spf13/pflag v1.0.5
 )
