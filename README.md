@@ -50,7 +50,7 @@ Optional:
 	-a, --auto-offset
 		Automatically sets the offset using X requests.
 		Value: int
-		Default: 3 (if flag is passed without value)
+		Default: off/no auto-delay
 	-r, --requests:
 		Sends this many requests.
 		Value: int
