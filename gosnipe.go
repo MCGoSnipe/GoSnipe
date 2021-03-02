@@ -110,6 +110,7 @@ func main() {
 				offset = 0
 			} else {
 				offset = *offsetTemp
+				fmt.Println("Auto-offset used: " + strconv.FormatFloat(offset, 'f', 4, 64))
 			}
 		}
 	}
