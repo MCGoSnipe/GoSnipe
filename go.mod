@@ -1,4 +1,4 @@
-module github.com/MCGoSnipe/Frontend
+module github.com/MCGoSnipe/gosnipe
 
 go 1.16
 
