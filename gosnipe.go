@@ -63,7 +63,7 @@ func timeSnipe(ch chan gosnipe.SnipeRes, timestamp time.Time, lines []string) {
 			config := gosnipe.Configuration{
 				Bearer:    bearer2,
 				Name:      name,
-				Offset:    offset + float64(speedlimit*i*snipereqs+speedlimit*j),
+				Offset:    offset - float64(speedlimit*i*snipereqs+speedlimit*j),
 				Timestamp: timestamp,
 				Label:     &labels[i],
 			}
