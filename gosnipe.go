@@ -21,6 +21,7 @@ var (
 	path       string
 	bearer     string
 	snipereqs  int
+	queue      bool
 )
 
 type msaRes struct {
@@ -45,6 +46,7 @@ func initFlags() {
 	flag.IntVarP(&speedlimit, "speed-limit", "l", 0, "offset between requests.")
 	flag.IntVarP(&snipereqs, "requests", "r", 2, "number of requests.")
 	flag.BoolVarP(&msa, "microsoft", "m", false, "load a microsoft account.")
+	flag.BoolVarP(&queue, "queue", "q", false, "enables STDIN name queueing")
 	flag.StringVarP(&bearer, "bearer", "b", "", "load a microsoft account with this response. requires -m")
 	flag.StringVarP(&name, "name", "n", "", "name to snipe.")
 	flag.StringVarP(&path, "path", "p", "", "path to accounts text file.")
@@ -95,8 +97,10 @@ func main() {
 	initFlags()
 	flag.Parse()
 	if !isFlagPassed("name") || name == "" {
-		fmt.Println("No name specified. Exiting.")
-		os.Exit(1)
+		if !isFlagPassed("queue") {
+			fmt.Println("No name specified. Exiting.")
+			os.Exit(1)
+		}
 	}
 	if !isFlagPassed("path") && !isFlagPassed("microsoft") {
 		fmt.Println("No accounts file was loaded and no MS accounts were loaded. Exiting.")
@@ -118,14 +122,19 @@ func main() {
 	if isFlagPassed("path") {
 		lines, _ = gosnipe.TextToSliceStr(path)
 	}
-	timestampTemp := gosnipe.GetDropTime(name)
-	if timestampTemp == nil {
-		fmt.Println("Failed to fetch droptime.")
-		os.Exit(1)
-	}
-	timestamp := *timestampTemp
+
 	ch := make(chan gosnipe.SnipeRes)
-	go timeSnipe(ch, timestamp, lines)
+	var timestamp time.Time
+	if !isFlagPassed("queue") {
+		timestampTemp := gosnipe.GetDropTime(name)
+		if timestampTemp == nil {
+			fmt.Println("Failed to fetch droptime.")
+			os.Exit(1)
+		}
+		timestamp = *timestampTemp
+		go timeSnipe(ch, timestamp, lines)
+	}
+	var resp msaRes
 	if isFlagPassed("microsoft") {
 		if msa {
 			label := "Microsoft Account"
@@ -137,31 +146,41 @@ func main() {
 					fmt.Println("Failed to read from STDIN.")
 					os.Exit(1)
 				}
-				var resp msaRes
 				json.Unmarshal([]byte(res), &resp)
-				for j := 0; j < snipereqs; j++ {
+				if resp.AccessToken == nil {
+					fmt.Println("Failed to authenticate, exiting...")
+					os.Exit(1)
+				}
+				if !isFlagPassed("queue") {
+					for j := 0; j < snipereqs; j++ {
 
-					config := gosnipe.Configuration{
-						Bearer:    bearer,
-						Name:      name,
-						Offset:    offset + float64(speedlimit*j),
-						Timestamp: timestamp,
-						Label:     &label,
+						config := gosnipe.Configuration{
+							Bearer:    *resp.AccessToken,
+							Name:      name,
+							Offset:    offset + float64(speedlimit*j),
+							Timestamp: timestamp,
+							Label:     &label,
+						}
+						go gosnipe.Snipe(config, ch)
 					}
-					go gosnipe.Snipe(config, ch)
 				}
 			} else {
-				var resp msaRes
 				json.Unmarshal([]byte(bearer), &resp)
-				for j := 0; j < snipereqs; j++ {
-					config := gosnipe.Configuration{
-						Bearer:    bearer,
-						Name:      name,
-						Offset:    offset + float64(speedlimit*j),
-						Timestamp: timestamp,
-						Label:     &label,
+				if resp.AccessToken == nil {
+					fmt.Println("Failed to authenticate, exiting...")
+					os.Exit(1)
+				}
+				if !isFlagPassed("queue") {
+					for j := 0; j < snipereqs; j++ {
+						config := gosnipe.Configuration{
+							Bearer:    *resp.AccessToken,
+							Name:      name,
+							Offset:    offset + float64(speedlimit*j),
+							Timestamp: timestamp,
+							Label:     &label,
+						}
+						go gosnipe.Snipe(config, ch)
 					}
-					go gosnipe.Snipe(config, ch)
 				}
 			}
 		} else {
@@ -171,8 +190,61 @@ func main() {
 			}
 		}
 	}
-	fmt.Println("Snipe running. Press enter to close.")
-	go getResp(ch)
-	read.ReadString('\n')
+	if !isFlagPassed("queue") {
+		fmt.Println("Snipe running. Press enter to close.")
+		go getResp(ch)
+		read.ReadString('\n')
+		os.Exit(0)
+	} else {
+		go getResp(ch)
+		queueFunc(read, resp, lines, ch)
+	}
+}
+
+func queueFunc(reader *bufio.Reader, msaResp msaRes, lines []string, ch chan gosnipe.SnipeRes) {
+	name := " "
+	for name != "" {
+		fmt.Print("Enter name to queue or leave blank to finalize: ")
+		name, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Error occured reading name, finalizing...")
+			break
+		}
+		namebytes := []byte(name)
+		if namebytes[len(namebytes)-1] == '\n' {
+			namebytes = namebytes[:len(namebytes)-1]
+		}
+		if namebytes[len(namebytes)-1] == '\r' {
+			namebytes = namebytes[:len(namebytes)-1]
+		}
+		name = string(namebytes)
+		if name == "" {
+			break
+		}
+		timestampTemp := gosnipe.GetDropTime(name)
+		if timestampTemp == nil {
+			fmt.Println("Failed to fetch droptime for " + name + ".")
+			continue
+		}
+		timestamp := *timestampTemp
+		go timeSnipe(ch, timestamp, lines)
+		if msaResp.AccessToken != nil {
+			label := "Microsoft Account"
+			for j := 0; j < snipereqs; j++ {
+
+				config := gosnipe.Configuration{
+					Bearer:    *msaResp.AccessToken,
+					Name:      name,
+					Offset:    offset + float64(speedlimit*j),
+					Timestamp: timestamp,
+					Label:     &label,
+				}
+				go gosnipe.Snipe(config, ch)
+			}
+		}
+		fmt.Println("Snipe started for " + name + ".")
+	}
+	fmt.Println("Finalized. Press enter to quit.")
+	reader.ReadString('\n')
 	os.Exit(0)
 }
