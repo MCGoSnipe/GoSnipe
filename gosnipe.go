@@ -214,6 +214,10 @@ func queueFunc(reader *bufio.Reader, msaResp msaRes, lines []string, ch chan gos
 		if namebytes[len(namebytes)-1] == '\n' {
 			namebytes = namebytes[:len(namebytes)-1]
 		}
+		name = string(namebytes)
+		if name == "" {
+			break
+		}
 		if namebytes[len(namebytes)-1] == '\r' {
 			namebytes = namebytes[:len(namebytes)-1]
 		}
