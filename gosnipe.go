@@ -193,6 +193,7 @@ func main() {
 	if !isFlagPassed("queue") {
 		fmt.Println("Snipe running. Press enter to close.")
 		go getResp(ch)
+		go timeSnipe(ch, timestamp, lines)
 		read.ReadString('\n')
 		os.Exit(0)
 	} else {
