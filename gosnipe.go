@@ -52,6 +52,27 @@ func initFlags() {
 	flag.StringVarP(&path, "path", "p", "", "path to accounts text file.")
 
 }
+func timeSnipeQueue(ch chan gosnipe.SnipeRes, timestamp time.Time, lines []string, name string) {
+	time.Sleep(time.Until(timestamp.Add(time.Second * -20)))
+	bearers, labels, _ := gosnipe.SliceStrToBearers(lines)
+	i := 0
+	if isFlagPassed("microsoft") {
+		i++
+	}
+	for _, bearer2 := range bearers {
+		for j := 0; j < snipereqs; j++ {
+			config := gosnipe.Configuration{
+				Bearer:    bearer2,
+				Name:      name,
+				Offset:    offset - float64(speedlimit*i*snipereqs+speedlimit*j),
+				Timestamp: timestamp,
+				Label:     &labels[i],
+			}
+			go gosnipe.Snipe(config, ch)
+		}
+		i++
+	}
+}
 
 func timeSnipe(ch chan gosnipe.SnipeRes, timestamp time.Time, lines []string) {
 	time.Sleep(time.Until(timestamp.Add(time.Second * -20)))
@@ -132,7 +153,6 @@ func main() {
 			os.Exit(1)
 		}
 		timestamp = *timestampTemp
-		go timeSnipe(ch, timestamp, lines)
 	}
 	var resp msaRes
 	if isFlagPassed("microsoft") {
@@ -208,7 +228,7 @@ func queueFunc(reader *bufio.Reader, msaResp msaRes, lines []string, ch chan gos
 		fmt.Print("Enter name to queue or leave blank to finalize: ")
 		name, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error occured reading name, finalizing...")
+			fmt.Println("Error occurred reading name, finalizing...")
 			break
 		}
 		namebytes := []byte(name)
@@ -232,7 +252,7 @@ func queueFunc(reader *bufio.Reader, msaResp msaRes, lines []string, ch chan gos
 			continue
 		}
 		timestamp := *timestampTemp
-		go timeSnipe(ch, timestamp, lines)
+		go timeSnipeQueue(ch, timestamp, lines, name)
 		if msaResp.AccessToken != nil {
 			label := "Microsoft Account"
 			for j := 0; j < snipereqs; j++ {
