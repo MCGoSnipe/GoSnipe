@@ -26,5 +26,7 @@ github.com/MCGoSnipe/Runtime v0.0.0-20210310002524-f33905185fd8 h1:cUHUffVh3kVRu
 github.com/MCGoSnipe/Runtime v0.0.0-20210310002524-f33905185fd8/go.mod h1:Mq3VeZlR2unT9tHLDkXSUIblTbGzTs7WmV0Mv0Tyq1Q=
 github.com/MCGoSnipe/Runtime v0.0.0-20210310210140-673e180023da h1:DOhJJRmncvSf1f18vt96GMbT/y0qq3TMMCYHMkPxq4w=
 github.com/MCGoSnipe/Runtime v0.0.0-20210310210140-673e180023da/go.mod h1:Mq3VeZlR2unT9tHLDkXSUIblTbGzTs7WmV0Mv0Tyq1Q=
+github.com/MCGoSnipe/Runtime v0.0.0-20210313215002-b0a84a3363e4 h1:/XUE67Vzh+1YWtVvHghFrk0E1QS1D19G4ejYi1oYOUk=
+github.com/MCGoSnipe/Runtime v0.0.0-20210313215002-b0a84a3363e4/go.mod h1:Mq3VeZlR2unT9tHLDkXSUIblTbGzTs7WmV0Mv0Tyq1Q=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
