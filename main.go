@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	flag "github.com/spf13/pflag"
@@ -37,17 +38,23 @@ func isFlagPassed(name string) bool {
 
 func main() {
 	fmt.Println(
-		FGYellow +`
+		FGYellow + `
  ██████╗  ██████╗ ███████╗███╗   ██╗██╗██████╗ ███████╗ 
 ██╔════╝ ██╔═══██╗██╔════╝████╗  ██║██║██╔══██╗██╔════╝ 
 ██║  ███╗██║   ██║███████╗██╔██╗ ██║██║██████╔╝█████╗   
 ██║   ██║██║   ██║╚════██║██║╚██╗██║██║██╔═══╝ ██╔══╝   
 ╚██████╔╝╚██████╔╝███████║██║ ╚████║██║██║     ███████╗ 
- ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚═╝╚═╝     ╚══════╝` +  Reset)
+ ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚═╝╚═╝     ╚══════╝` + Reset)
 	initFlags()
 	flag.Parse()
-	//args := flag.Args()
-	//TODO: add in frontend code
+	args := flag.Args()
+	if len(args) < 1 {
+		err("no command specified")
+		os.Exit(1)
+	}
+	command := args[0]
+	switchCommand(command)
+	// TODO: add in frontend code
 }
 func initFlags() {
 	flag.Float64VarP(&offset, "offset", "o", 0, "offset in milliseconds before snipe.")
